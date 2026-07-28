@@ -14,6 +14,7 @@ const commands = [
   new SlashCommandBuilder()
     .setName('explore')
     .setDescription('Browse ScratchNews articles with category and sort filters'),
+  new SlashCommandBuilder().setName('cmds').setDescription('Welcome message and list of what ScratchNews Bot can do'),
 ].map((c) => c.toJSON());
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN);

@@ -39,3 +39,21 @@ export function categoriesEmbed(categories) {
     .setColor(BRAND_COLOR)
     .setDescription(categories.map((c) => `• ${c.name}`).join('\n') || 'No categories yet.');
 }
+
+export function helpEmbed() {
+  return new EmbedBuilder()
+    .setTitle('👋 Welcome to ScratchNews Bot!')
+    .setColor(BRAND_COLOR)
+    .setDescription(
+      `I bring articles from [ScratchNews](${SITE_BASE}) — a community news site for the Scratch platform — right into Discord.`,
+    )
+    .addFields(
+      { name: '/latest', value: 'Show the most recent article' },
+      { name: '/random', value: 'Show a random article' },
+      { name: '/article <id>', value: 'Fetch a specific article by its ID' },
+      { name: '/categories', value: 'List all ScratchNews categories' },
+      { name: '/explore', value: 'Browse articles interactively — pick a category and sort order with dropdowns, page through results' },
+      { name: '/cmds', value: 'Show this message again' },
+    )
+    .setFooter({ text: 'New articles are also auto-posted here as they get published.' });
+}
