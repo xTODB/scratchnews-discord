@@ -15,6 +15,16 @@ const commands = [
     .setName('explore')
     .setDescription('Browse ScratchNews articles with category and sort filters'),
   new SlashCommandBuilder().setName('cmds').setDescription('Welcome message and list of what ScratchNews Bot can do'),
+  new SlashCommandBuilder()
+    .setName('init')
+    .setDescription('Server owner only: set which channel commands work in')
+    .addSubcommand((sub) =>
+      sub
+        .setName('channel')
+        .setDescription('Restrict commands to one channel')
+        .addChannelOption((opt) => opt.setName('channel').setDescription('The channel to restrict to').setRequired(true)),
+    )
+    .addSubcommand((sub) => sub.setName('all').setDescription('Allow commands in any channel')),
 ].map((c) => c.toJSON());
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN);

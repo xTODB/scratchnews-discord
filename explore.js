@@ -11,7 +11,7 @@ const SORT_OPTIONS = [
   { value: 'metrics', label: 'Best Overall (Metrics)' },
 ];
 
-// Keyed by the reply message's ID. Lost on a restart — a component interaction
+// Keyed by the reply message's ID. Lost on a restart: a component interaction
 // against a session we no longer know about just tells the person to re-run
 // /explore, rather than erroring confusingly.
 const sessions = new Map();
@@ -105,7 +105,7 @@ export async function handleExploreComponent(interaction) {
   const session = sessions.get(interaction.message.id);
   if (!session) {
     return interaction.reply({
-      content: 'This /explore session expired (the bot may have restarted) — run /explore again.',
+      content: 'This /explore session expired (the bot may have restarted), run /explore again.',
       ephemeral: true,
     });
   }

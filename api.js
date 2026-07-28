@@ -52,7 +52,7 @@ async function fetchPastChallenge(url) {
     ({ res, body } = await rawFetch(url, cachedCookie));
 
     if (isChallengePage(body)) {
-      throw new Error('Still hitting InfinityFree challenge page after solving it once: challenge format may differ from expected');
+      throw new Error('Still hitting InfinityFree challenge page after solving it once, challenge format may differ from expected');
     }
   }
 

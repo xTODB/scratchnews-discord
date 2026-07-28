@@ -5,6 +5,7 @@ import { getArticles, getArticle, getCategories, getRandomArticle } from './api.
 import { articleEmbed, categoriesEmbed, helpEmbed } from './embeds.js';
 import { getLastSeenId, setLastSeenId } from './state.js';
 import { handleExploreCommand, isExploreComponent, handleExploreComponent } from './explore.js';
+import { getAllowedChannel, setAllowedChannel } from './guild-config.js';
 
 const POLL_MS = Number(process.env.POLL_MINUTES || 5) * 60 * 1000;
 
@@ -28,6 +29,16 @@ client.once(Events.ClientReady, (c) => {
 client.on(Events.InteractionCreate, async (interaction) => {
   try {
     if (interaction.isChatInputCommand()) {
+      if (interaction.commandName !== 'init' && interaction.guildId) {
+        const allowedChannelId = await getAllowedChannel(interaction.guildId);
+        if (allowedChannelId && interaction.channelId !== allowedChannelId) {
+          return interaction.reply({
+            content: `Commands only work in <#${allowedChannelId}>.`,
+            ephemeral: true,
+          });
+        }
+      }
+
       switch (interaction.commandName) {
         case 'latest': {
           const { data } = await getArticles({ page: 1, perPage: 1 });
@@ -56,6 +67,22 @@ client.on(Events.InteractionCreate, async (interaction) => {
           return handleExploreCommand(interaction);
         case 'cmds':
           return interaction.reply({ embeds: [helpEmbed()] });
+        case 'init': {
+          if (interaction.guild.ownerId !== interaction.user.id) {
+            return interaction.reply({ content: 'Only the server owner can use this command.', ephemeral: true });
+          }
+          const sub = interaction.options.getSubcommand();
+          if (sub === 'channel') {
+            const channel = interaction.options.getChannel('channel', true);
+            await setAllowedChannel(interaction.guildId, channel.id);
+            return interaction.reply({ content: `Commands are now restricted to <#${channel.id}>.`, ephemeral: true });
+          }
+          if (sub === 'all') {
+            await setAllowedChannel(interaction.guildId, null);
+            return interaction.reply({ content: 'Commands can now be used in any channel.', ephemeral: true });
+          }
+          return;
+        }
       }
       return;
     }
@@ -85,7 +112,7 @@ async function checkForNewArticles() {
     if (lastSeenId === null) {
       const maxId = Math.max(...data.map((a) => a.id));
       await setLastSeenId(maxId);
-      console.log(`First run — seeded lastSeenId to ${maxId}`);
+      console.log(`First run: seeded lastSeenId to ${maxId}`);
       return;
     }
 
