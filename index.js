@@ -4,6 +4,7 @@ import { Client, GatewayIntentBits, Events } from 'discord.js';
 import { getArticles, getArticle, getCategories, getRandomArticle } from './api.js';
 import { articleEmbed, categoriesEmbed } from './embeds.js';
 import { getLastSeenId, setLastSeenId } from './state.js';
+import { handleExploreCommand, isExploreComponent, handleExploreComponent } from './explore.js';
 
 const POLL_MS = Number(process.env.POLL_MINUTES || 5) * 60 * 1000;
 
@@ -25,33 +26,40 @@ client.once(Events.ClientReady, (c) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
   try {
-    switch (interaction.commandName) {
-      case 'latest': {
-        const { data } = await getArticles({ page: 1, perPage: 1 });
-        if (!data?.length) return interaction.reply('No articles yet.');
-        return interaction.reply({ embeds: [articleEmbed(data[0])] });
-      }
-      case 'random': {
-        const article = await getRandomArticle();
-        if (!article) return interaction.reply('No articles yet.');
-        return interaction.reply({ embeds: [articleEmbed(article)] });
-      }
-      case 'categories': {
-        const categories = await getCategories();
-        return interaction.reply({ embeds: [categoriesEmbed(categories)] });
-      }
-      case 'article': {
-        const id = interaction.options.getInteger('id', true);
-        try {
-          const article = await getArticle(id);
-          return interaction.reply({ embeds: [articleEmbed(article)] });
-        } catch {
-          return interaction.reply({ content: `No published article found with ID ${id}.`, ephemeral: true });
+    if (interaction.isChatInputCommand()) {
+      switch (interaction.commandName) {
+        case 'latest': {
+          const { data } = await getArticles({ page: 1, perPage: 1 });
+          if (!data?.length) return interaction.reply('No articles yet.');
+          return interaction.reply({ embeds: [articleEmbed(data[0])] });
         }
+        case 'random': {
+          const article = await getRandomArticle();
+          if (!article) return interaction.reply('No articles yet.');
+          return interaction.reply({ embeds: [articleEmbed(article)] });
+        }
+        case 'categories': {
+          const categories = await getCategories();
+          return interaction.reply({ embeds: [categoriesEmbed(categories)] });
+        }
+        case 'article': {
+          const id = interaction.options.getInteger('id', true);
+          try {
+            const article = await getArticle(id);
+            return interaction.reply({ embeds: [articleEmbed(article)] });
+          } catch {
+            return interaction.reply({ content: `No published article found with ID ${id}.`, ephemeral: true });
+          }
+        }
+        case 'explore':
+          return handleExploreCommand(interaction);
       }
+      return;
+    }
+
+    if (isExploreComponent(interaction)) {
+      return handleExploreComponent(interaction);
     }
   } catch (err) {
     console.error(err);

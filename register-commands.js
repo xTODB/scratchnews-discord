@@ -11,6 +11,9 @@ const commands = [
     .addIntegerOption((opt) =>
       opt.setName('id').setDescription('Article ID').setRequired(true),
     ),
+  new SlashCommandBuilder()
+    .setName('explore')
+    .setDescription('Browse ScratchNews articles with category and sort filters'),
 ].map((c) => c.toJSON());
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN);
