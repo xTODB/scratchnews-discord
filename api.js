@@ -2,11 +2,13 @@ import 'dotenv/config';
 import { createDecipheriv } from 'node:crypto';
 
 const API_BASE = process.env.API_BASE;
+const API_KEY = process.env.API_KEY;
 
 const BROWSER_HEADERS = {
   'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
   Accept: 'application/json, text/html;q=0.9, */*;q=0.8',
+  Authorization: `Bearer ${API_KEY}`,
 };
 
 // InfinityFree (and several other free hosts on the same anti-bot layer)
