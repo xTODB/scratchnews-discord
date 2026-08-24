@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { createServer } from 'node:http';
 import { Client, GatewayIntentBits, Events } from 'discord.js';
-import { articleEmbed, categoriesEmbed, helpEmbed } from './embeds.js';
 import { getLastSeenId, setLastSeenId } from './state.js';
 import { handleExploreCommand, isExploreComponent, handleExploreComponent } from './explore.js';
 import { getAllowedChannel, setAllowedChannel } from './guild-config.js';
