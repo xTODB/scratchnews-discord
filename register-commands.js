@@ -11,6 +11,38 @@ const commands = [
     .addIntegerOption((opt) =>
       opt.setName('id').setDescription('Article ID').setRequired(true),
     ),
+    new SlashCommandBuilder()
+    .setName('user')
+    .setDescription('View a ScratchNews user profile')
+    .addStringOption((opt) => opt.setName('username').setDescription('ScratchNews username').setRequired(true)),
+    new SlashCommandBuilder()
+      .setName('user-articles')
+      .setDescription("Browse a user's published ScratchNews articles")
+      .addStringOption((opt) => opt.setName('username').setDescription('ScratchNews username').setRequired(true)),
+    new SlashCommandBuilder()
+      .setName('user-groups')
+      .setDescription("Browse a user's ScratchNews groups")
+      .addStringOption((opt) => opt.setName('username').setDescription('ScratchNews username').setRequired(true)),
+    new SlashCommandBuilder().setName('groups').setDescription('List all active ScratchNews groups'),
+    new SlashCommandBuilder()
+      .setName('group')
+      .setDescription('View a ScratchNews group')
+      .addStringOption((opt) => opt.setName('group').setDescription('Group ID or slug').setRequired(true)),
+    new SlashCommandBuilder()
+      .setName('search')
+      .setDescription('Search ScratchNews')
+      .addStringOption((opt) =>
+        opt
+          .setName('category')
+          .setDescription('What to search')
+          .setRequired(true)
+          .addChoices(
+            { name: 'articles', value: 'articles' },
+            { name: 'profiles', value: 'profiles' },
+            { name: 'groups', value: 'groups' },
+          ),
+      )
+  .addStringOption((opt) => opt.setName('query').setDescription('Search text').setRequired(true)),
   new SlashCommandBuilder()
     .setName('explore')
     .setDescription('Browse ScratchNews articles with category and sort filters'),

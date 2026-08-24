@@ -6,6 +6,9 @@ import { articleEmbed, categoriesEmbed, helpEmbed } from './embeds.js';
 import { getLastSeenId, setLastSeenId } from './state.js';
 import { handleExploreCommand, isExploreComponent, handleExploreComponent } from './explore.js';
 import { getAllowedChannel, setAllowedChannel } from './guild-config.js';
+import { getArticles, getArticle, getCategories, getRandomArticle, getUser, getUserArticles, getUserGroups, getGroups, getGroup, searchArticles, searchProfiles, searchGroups } from './api.js';
+import { articleEmbed, categoriesEmbed, helpEmbed, userEmbed, groupEmbed, groupListEmbed, articleListEmbed, userListEmbed } from './embeds.js';
+import { startPager, isPagerComponent, handlePagerComponent } from './pager.js';
 
 const POLL_MS = Number(process.env.POLL_MINUTES || 5) * 60 * 1000;
 
@@ -63,6 +66,65 @@ client.on(Events.InteractionCreate, async (interaction) => {
             return interaction.reply({ content: `No published article found with ID ${id}.`, ephemeral: true });
           }
         }
+        case 'user': {
+          const username = interaction.options.getString('username', true);
+          try {
+            const user = await getUser(username);
+            return interaction.reply({ embeds: [userEmbed(user)] });
+          } catch {
+            return interaction.reply({ content: `No ScratchNews user found with username "${username}".`, ephemeral: true });
+          }
+        }
+        case 'user-articles': {
+          const username = interaction.options.getString('username', true);
+          return startPager(interaction, {
+            page: 1,
+            perPage: 5,
+            fetchPage: (page) => getUserArticles(username, { page, perPage: 5 }),
+            renderPage: (data, page, total) => articleListEmbed(`${username}'s Articles`, data, page, total),
+          });
+        }
+        case 'user-groups': {
+          const username = interaction.options.getString('username', true);
+          return startPager(interaction, {
+            page: 1,
+            perPage: 5,
+            fetchPage: (page) => getUserGroups(username, { page, perPage: 5 }),
+            renderPage: (data, page, total) => groupListEmbed(data, page, total, `${username}'s Groups`),
+          });
+        }
+        case 'groups': {
+          return startPager(interaction, {
+            page: 1,
+            perPage: 5,
+            fetchPage: (page) => getGroups({ page, perPage: 5 }),
+            renderPage: (data, page, total) => groupListEmbed(data, page, total),
+          });
+        }
+        case 'group': {
+          const query = interaction.options.getString('group', true);
+          try {
+            const group = await getGroup(query);
+            return interaction.reply({ embeds: [groupEmbed(group)] });
+          } catch {
+            return interaction.reply({ content: `No group found for "${query}".`, ephemeral: true });
+          }
+        }
+        case 'search': {
+          const category = interaction.options.getString('category', true);
+          const query = interaction.options.getString('query', true);
+          const fetchers = {
+            articles: (page) => searchArticles(query, { page, perPage: 5 }),
+            profiles: (page) => searchProfiles(query, { page, perPage: 5 }),
+            groups: (page) => searchGroups(query, { page, perPage: 5 }),
+          };
+          const renderers = {
+            articles: (data, page, total) => articleListEmbed(`Article search: "${query}"`, data, page, total),
+            profiles: (data, page, total) => userListEmbed(`Profile search: "${query}"`, data, page, total),
+            groups: (data, page, total) => groupListEmbed(data, page, total, `Group search: "${query}"`),
+          };
+          return startPager(interaction, { page: 1, perPage: 5, fetchPage: fetchers[category], renderPage: renderers[category] });
+        }
         case 'explore':
           return handleExploreCommand(interaction);
         case 'cmds':
@@ -89,6 +151,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (isExploreComponent(interaction)) {
       return handleExploreComponent(interaction);
+    }
+    if (isPagerComponent(interaction)) {
+      return handlePagerComponent(interaction);
     }
   } catch (err) {
     console.error(err);

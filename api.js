@@ -106,3 +106,42 @@ export async function getRandomArticle() {
   const result = await getArticles({ page: randomPage, perPage: 1 });
   return result.data?.[0] ?? null;
 }
+
+export async function getUser(username) {
+  return apiGet(`/users.php?username=${encodeURIComponent(username)}`);
+}
+
+export async function getUserArticles(username, { page = 1, perPage = 5 } = {}) {
+  const params = new URLSearchParams({ username, page: String(page), per_page: String(perPage) });
+  return apiGet(`/user-articles.php?${params}`);
+}
+
+export async function getUserGroups(username, { page = 1, perPage = 5 } = {}) {
+  const params = new URLSearchParams({ username, page: String(page), per_page: String(perPage) });
+  return apiGet(`/user-groups.php?${params}`);
+}
+
+export async function getGroups({ page = 1, perPage = 5 } = {}) {
+  const params = new URLSearchParams({ page: String(page), per_page: String(perPage) });
+  return apiGet(`/groups.php?${params}`);
+}
+
+export async function getGroup(idOrSlug) {
+  const key = /^\d+$/.test(String(idOrSlug)) ? 'id' : 'slug';
+  return apiGet(`/groups.php?${key}=${encodeURIComponent(idOrSlug)}`);
+}
+
+export async function searchArticles(q, { page = 1, perPage = 5 } = {}) {
+  const params = new URLSearchParams({ q, page: String(page), per_page: String(perPage) });
+  return apiGet(`/search-articles.php?${params}`);
+}
+
+export async function searchProfiles(q, { page = 1, perPage = 5 } = {}) {
+  const params = new URLSearchParams({ q, page: String(page), per_page: String(perPage) });
+  return apiGet(`/search-profiles.php?${params}`);
+}
+
+export async function searchGroups(q, { page = 1, perPage = 5 } = {}) {
+  const params = new URLSearchParams({ q, page: String(page), per_page: String(perPage) });
+  return apiGet(`/search-groups.php?${params}`);
+}
